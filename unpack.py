@@ -43,7 +43,7 @@ utils.copyPart(inputFile, os.path.join(outputDirectory, "~header"), 0, HEADER_SI
 
 offset = header.find('\xff'.encode(encoding='iso-8859-1'))
 if offset != -1:
-	headerScript = header[:offset].decode()
+	headerScript = header[:offset].decode( 'iso-8859-1' )
 	headerScriptFound = True
 
 if not headerScriptFound:
@@ -55,7 +55,7 @@ if DEBUG:
 
 # Save the script
 print ("[i] Saving header script to " + os.path.join(outputDirectory, "~header_script.sh") + " ...")
-with open(os.path.join(outputDirectory, "~header_script.sh"), "w") as f:
+with open(os.path.join(outputDirectory, "~header_script.sh"), "w", encoding='iso-8859-1') as f:
 	f.write(headerScript)
 
 # Parse script
@@ -84,7 +84,7 @@ for line in headerScript.splitlines():
 		size =  params["size"]
 
 	if re.match("^store_secure_info", line):
-		line = utils.applyEnv(line, env)		
+		line = utils.applyEnv(line, env)
 		params = utils.processStoreSecureInfo(line)
 		outputFile = os.path.join(outputDirectory, params["partition_name"])
 		utils.copyPart(inputFile, outputFile, int(offset, 16), int(size, 16))
@@ -173,6 +173,7 @@ for partName in sparseList:
 	sparseFilesConv = utils.convertInputSparseName(sparseFiles)
 	outputImgFile = os.path.join(outputDirectory, partName + ".img")
 	utils.sparse_to_img(sparseFilesConv, outputImgFile)
-	os.system('del ' + sparseFiles)
+	delete = 'del ' if os.name == 'nt' else 'rm '
+	os.system(delete + sparseFiles)
 print ("[i] Done.")
 
